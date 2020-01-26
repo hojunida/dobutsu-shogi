@@ -1,0 +1,147 @@
+.App {
+  text-align: center;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    width: auto\9; /* ie8 */
+}
+
+/* Split the screen in half */
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+/* Control the left side */
+.left {
+  left: 0;
+  background-color: #111;
+}
+
+/* Control the right side */
+.right {
+  right: 0;
+  background-color: red;
+}
+
+.background {
+  position:absolute; 
+  top:0; left:0; right:0; bottom:0; 
+  margin: auto;
+  z-index: 1;
+  height:500px;
+  width:390px;
+}
+
+.board {
+  position:absolute; 
+  top:17px; left:7px; right:0; bottom:0; 
+  margin: auto;
+  height:460px;
+  width:345px;
+}
+
+.piecea1 {
+  position: absolute;
+  z-index: 2;
+  top: 6px;
+  left: 6px;
+  height:101px;
+}
+
+.pieceb1 {
+  position: absolute;
+  z-index: 2;
+  top: 6px;
+  left: 120px;
+  height:101px;
+}
+
+.piecec1 {
+  position: absolute;
+  z-index: 2;
+  top: 6px;
+  left: 235px;
+  height:101px;
+}
+
+.piecea2 {
+  position: absolute;
+  z-index: 2;
+  top: 121px;
+  left: 6px;
+  height:101px;
+}
+
+.pieceb2 {
+  position: absolute;
+  z-index: 2;
+  top: 121px;
+  left: 120px;
+  height:101px;
+}
+
+.piecec2 {
+  position: absolute;
+  z-index: 2;
+  top: 121px;
+  left: 235px;
+  height:101px;
+}
+
+.piecea3 {
+  position: absolute;
+  z-index: 2;
+  top: 236px;
+  left: 6px;
+  height:101px;
+}
+
+.pieceb3 {
+  position: absolute;
+  z-index: 2;
+  top: 236px;
+  left: 120px;
+  height:101px;
+}
+
+.piecec3 {
+  position: absolute;
+  z-index: 2;
+  top: 236px;
+  left: 235px;
+  height:101px;
+}
+
+.piecea4 {
+  position: absolute;
+  z-index: 2;
+  top: 351px;
+  left: 6px;
+  height:101px;
+}
+
+.pieceb4 {
+  position: absolute;
+  z-index: 2;
+  top: 351px;
+  left: 120px;
+  height:101px;
+}
+
+.piecec4 {
+  position: absolute;
+  z-index: 2;
+  top: 351px;
+  left: 235px;
+  height:101px;
+}
+
+
