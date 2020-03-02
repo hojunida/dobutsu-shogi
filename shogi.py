@@ -1,3 +1,7 @@
+GAME_NOT_DONE = 0
+GAME_WON = 1
+GAME_DRAWN = 2
+
 class Player():
 
 	def __init__(self):
@@ -35,6 +39,7 @@ class Board():
 		}
 		self.last_six_moves = []
 		self.player = Player()
+		self.done = GAME_NOT_DONE
 
 	def print_board(self):
 		print('_'*15)
@@ -56,6 +61,9 @@ class Board():
 			if self.board[x][y] == "ML":
 				return True
 		return False
+
+	def check_game_finished(self):
+		return {"done": self.done}
 
 	def find_valid_spaces(self, row, col):
 		piece = self.board[row][col]
@@ -120,7 +128,7 @@ class Board():
 		piece = self.board[old_row][old_col]
 		replacing_piece = self.board[new_row][new_col]
 		if (new_row, new_col) in self.find_valid_spaces(old_row, old_col):
-			if piece == "MC" and new_row == 0:
+			if piece == "MC" and new_row == 0 and replacing_piece != "EL":
 				piece = "MH"
 			if replacing_piece == "--":
 				self.board[old_row][old_col] = "--"
@@ -129,8 +137,7 @@ class Board():
 				if replacing_piece == "EH":
 					replacing_piece = "EC"
 				if replacing_piece == "EL":
-					print("game won by taking lion")
-					return
+					self.done = GAME_WON # print("game won by taking lion")
 				self.player.add_piece_to_bench("M" + replacing_piece[1:])
 				self.board[old_row][old_col] = "--"
 				self.board[new_row][new_col] = piece
@@ -139,7 +146,7 @@ class Board():
 
 		for i in range(len(self.board[0])):
 			if self.board[0][i] == "ML" and not self.lion_in_check():
-				print("game won by promoting lion")
+				self.done = GAME_WON # print("game won by promoting lion")
 
 		if len(self.last_six_moves) < 6:
 			self.last_six_moves.append((old_row, old_col, new_row, new_col))
@@ -148,7 +155,7 @@ class Board():
 			self.last_six_moves.append((old_row, old_col, new_row, new_col))
 
 		if len(self.last_six_moves) == 6 and self.last_six_moves[0] == self.last_six_moves[2] and self.last_six_moves[0] == self.last_six_moves[4] and self.last_six_moves[1] == self.last_six_moves[3] and self.last_six_moves[1] == self.last_six_moves[5]:
-			print("game ends in a draw")
+			self.done = GAME_DRAWN
 
 
 

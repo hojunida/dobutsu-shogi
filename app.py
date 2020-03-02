@@ -37,6 +37,16 @@ def enemy_board():
     global enemy_board
     return enemy_board.board_to_string()
 
+@app.route('/player_done')
+def player_done():
+    global player_board
+    return player_board.check_game_finished()
+
+@app.route('/enemy_done')
+def enemy_done():
+    global enemy_board
+    return enemy_board.check_game_finished()
+
 @app.route('/player_move/<command>')
 def player_move(command):
     if len(command) == 4: #add in int conversion check
