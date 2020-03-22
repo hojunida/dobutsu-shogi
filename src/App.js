@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import background from './images/background.jpg';
+import bench from './images/bench.jpg';
 import ML from './images/ML.jpg';
 import MH from './images/MH.jpg';
 import MC from './images/MC.jpg';
@@ -15,7 +16,9 @@ import TP from './images/TP.png';
 import $ from 'jquery';
 import axios from 'axios';
 
-var state = '';
+var command = '';
+
+var BENCH = 4;
 
 class App extends React.Component {
 
@@ -24,6 +27,8 @@ class App extends React.Component {
     this.state = { 
       playerBoard: [["EG","EL","EE"], ["--","EC","--"], ["--","MC","--"], ["ME","ML","MG"]],
       enemyBoard: [["EG","EL","EE"], ["--","EC","--"], ["--","MC","--"], ["ME","ML","MG"]],
+      playerBench: [["--","--","--"], ["--","--","--"]],
+      enemyBench: [["--","--","--"], ["--","--","--"]],
       playerWin: 0,
       enemyWin: 0
     };
@@ -63,45 +68,90 @@ class App extends React.Component {
       });
   }
 
+  update(response){
+    this.setState({playerBoard: response["data"]["playerBoard"]});
+    this.setState({enemyBoard: response["data"]["enemyBoard"]});
+    this.setState({playerBench: response["data"]["playerBench"]});
+    this.setState({enemyBench: response["data"]["enemyBench"]});
+  }
+
   imagePlayerClick(i, j){
     var res = i + "" + j
-    state += res
-    console.log(state)
-    if (state.length == 4){
-      axios.get('http://localhost:5000/player_move/' + state)
+    command += res
+    console.log(command)
+    if (command.length == 4){
+      axios.get('http://localhost:5000/player_move/' + command)
       .then(response => {
         console.log(response);
         // this.forceUpdate();
-        this.setState({playerBoard: response["data"]["board"]});
-        this.setState({enemyBoard: response["data"]["enemy"]});
+        this.update(response);
         this.checkGameFinished();
         console.log(this.state.playerBoard);
       })
       .catch(function (error) {
         console.log(error);
       });
-      state = "";
+      command = "";
     }
   }
 
   imageEnemyClick(i, j){
     var res = i + "" + j
-    state += res
-    console.log(state)
-    if (state.length == 4){
-      axios.get('http://localhost:5000/enemy_move/' + state)
+    command += res
+    console.log(command)
+    if (command.length == 4){
+      axios.get('http://localhost:5000/enemy_move/' + command)
       .then(response => {
         console.log(response);
         // this.forceUpdate();
-        this.setState({enemyBoard: response["data"]["board"]});
-        this.setState({playerBoard: response["data"]["enemy"]});
+        this.update(response);
         this.checkGameFinished();
         console.log(this.state.playerBoard);
       })
       .catch(function (error) {
         console.log(error);
       });
-      state = "";
+      command = "";
+    }
+  }
+
+  benchPlayerClick(i, j){
+    var res = i + "" + j
+    command += res
+    console.log(command)
+    if (command.length == 4){
+      axios.get('http://localhost:5000/player_move/' + command)
+      .then(response => {
+        console.log(response);
+        // this.forceUpdate();
+        this.update(response);
+        this.checkGameFinished();
+        console.log(this.state.playerBoard);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      command = "";
+    }
+  }
+
+  benchEnemyClick(i, j){
+    var res = i + "" + j
+    command += res
+    console.log(command)
+    if (command.length == 4){
+      axios.get('http://localhost:5000/enemy_move/' + command)
+      .then(response => {
+        console.log(response);
+        // this.forceUpdate();
+        this.update(response);
+        this.checkGameFinished();
+        console.log(this.state.playerBoard);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      command = "";
     }
   }
 
@@ -129,7 +179,7 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
-        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imagePlayerClick(i, j))}} /> </button>) //comment to fix syntax
+        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imagePlayerClick(i, j))}} /> </button>)
       }
     }
     return myHTML
@@ -154,17 +204,71 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
-        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imageEnemyClick(i, j))}} /> </button>) //comment to fix syntax
+        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imageEnemyClick(i, j))}} /> </button>)
+      }
+    }
+    return myHTML
+  }
+
+  playerBenchHTMLCode(array){
+    var imageMap = {
+      "EG": EG,
+      "EL": EL,
+      "EE": EE,
+      "EC": EC,
+      "EH": EH,
+      "MG": MG,
+      "ML": ML,
+      "ME": ME,
+      "MC": MC,
+      "MH": MH,
+      "--": TP
+    }
+    var myHTML = [];
+
+    for (let i = 0; i < array.length; i++){
+      for (let j = 0; j < array[0].length; j++){
+        var className = this.getClass(i,j);
+        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imagePlayerClick(BENCH, i+j))}} /> </button>)
       }
     }
     return myHTML
   }
 
 
+  enemyBenchHTMLCode(array){
+    var imageMap = {
+      "EG": EG,
+      "EL": EL,
+      "EE": EE,
+      "EC": EC,
+      "EH": EH,
+      "MG": MG,
+      "ML": ML,
+      "ME": ME,
+      "MC": MC,
+      "MH": MH,
+      "--": TP
+    }
+    var myHTML = [];
+
+    for (let i = 0; i < array.length; i++){
+      for (let j = 0; j < array[0].length; j++){
+        var className = this.getClass(i,j);
+        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imageEnemyClick(BENCH, i+j))}} /> </button>)
+      }
+    }
+    return myHTML
+  }
+
   render() {
 
     var playerImages = this.imagePlayerHTMLCode(this.state.playerBoard);
     var enemyImages = this.imageEnemyHTMLCode(this.state.enemyBoard);
+
+    var playerBench = this.playerBenchHTMLCode(this.state.playerBench);
+    var enemyBench = this.playerBenchHTMLCode(this.state.enemyBench);
+
 
     let playerWinTextArray = ["", "PLAYER 1 WINS", "GAME DRAWN"]
 
@@ -183,6 +287,10 @@ class App extends React.Component {
           <div class="board">
            {playerImages}
           </div>
+          <img src={bench} class="bench" />
+          <div class="bench">
+            {playerBench}
+          </div>
         </div>
 
         <div class= "split right">
@@ -192,6 +300,10 @@ class App extends React.Component {
           <img src={background} class="background" />        
           <div class="board">        
             {enemyImages}
+          </div>
+          <img src={bench} class="bench" />
+          <div class="bench">
+            {enemyBench}
           </div>
         </div>
       </div>

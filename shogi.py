@@ -5,13 +5,20 @@ GAME_DRAWN = 2
 class Player():
 
 	def __init__(self):
-		self.bench = []
+		self.bench = [[],[]]
 
 	def add_piece_to_bench(self, piece):
-		self.bench.append(piece)
+		if len(self.bench[0]) < 3:
+			self.bench[0].append(piece)
+		else:
+			self.bench[1].append(piece)
 
 	def remove_piece_from_bench(self, piece):
-		self.bench.remove(piece)
+		# self.bench.remove(piece)
+		pass
+
+	def return_bench(self):
+		return self.bench
 
 	def print_bench(self):
 		bench_string_list = ""
@@ -50,8 +57,8 @@ class Board():
 			print(row)
 			print('_'*15)
 
-	def board_to_string(self):
-		return {"board": self.board, "enemy": self.flip_board()}
+	def board_to_string(self, prefix):
+		return {prefix+"Board": self.board, prefix+"Bench": self.player.return_bench()}
 
 	def check_in_board(self, row, col):
 		return row >= 0 and row < 4 and col >= 0 and col < 3
@@ -64,6 +71,9 @@ class Board():
 
 	def check_game_finished(self):
 		return {"done": self.done}
+
+	def return_bench(self):
+		return {"bench": self.player.return_bench()}
 
 	def find_valid_spaces(self, row, col):
 		piece = self.board[row][col]
