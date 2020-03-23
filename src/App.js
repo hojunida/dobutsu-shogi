@@ -18,8 +18,6 @@ import axios from 'axios';
 
 var command = '';
 
-var BENCH = 4;
-
 class App extends React.Component {
 
   constructor(props) {
@@ -30,7 +28,9 @@ class App extends React.Component {
       playerBench: [["--","--","--"], ["--","--","--"]],
       enemyBench: [["--","--","--"], ["--","--","--"]],
       playerWin: 0,
-      enemyWin: 0
+      enemyWin: 0,
+      playerPlaceFlag: false,
+      enemyPlaceFlag: false
     };
     this.resetBoard();
     // this.imageClick = this.imageClick.bind();
@@ -73,14 +73,30 @@ class App extends React.Component {
     this.setState({enemyBoard: response["data"]["enemyBoard"]});
     this.setState({playerBench: response["data"]["playerBench"]});
     this.setState({enemyBench: response["data"]["enemyBench"]});
+    this.setState({playerPlaceFlag: false});
+    this.setState({enemyPlaceFlag: false});
   }
 
   imagePlayerClick(i, j){
-    var res = i + "" + j
-    command += res
-    console.log(command)
-    if (command.length == 4){
+    var res = i + "" + j;
+    command += res;
+    console.log(command);
+    if (command.length == 4 && this.state.placeFlag == false){
       axios.get('http://localhost:5000/player_move/' + command)
+      .then(response => {
+        console.log(response);
+        // this.forceUpdate();
+        this.update(response);
+        this.checkGameFinished();
+        console.log(this.state.playerBoard);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      command = "";
+    }
+    else if (command.length == 4 && this.state.playerPlaceFlag == true){
+      axios.get('http://localhost:5000/player_place/' + command)
       .then(response => {
         console.log(response);
         // this.forceUpdate();
@@ -96,11 +112,25 @@ class App extends React.Component {
   }
 
   imageEnemyClick(i, j){
-    var res = i + "" + j
-    command += res
-    console.log(command)
-    if (command.length == 4){
+    var res = i + "" + j;
+    command += res;
+    console.log(command);
+    if (command.length == 4 && this.state.enemyPlaceFlag == false){
       axios.get('http://localhost:5000/enemy_move/' + command)
+      .then(response => {
+        console.log(response);
+        // this.forceUpdate();
+        this.update(response);
+        this.checkGameFinished();
+        console.log(this.state.playerBoard);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      command = "";
+    }
+    else if (command.length == 4 && this.state.enemyPlaceFlag == true){
+      axios.get('http://localhost:5000/enemy_place/' + command)
       .then(response => {
         console.log(response);
         // this.forceUpdate();
@@ -116,41 +146,21 @@ class App extends React.Component {
   }
 
   benchPlayerClick(i, j){
+    this.setState({playerPlaceFlag: true});
     var res = i + "" + j
     command += res
     console.log(command)
     if (command.length == 4){
-      axios.get('http://localhost:5000/player_move/' + command)
-      .then(response => {
-        console.log(response);
-        // this.forceUpdate();
-        this.update(response);
-        this.checkGameFinished();
-        console.log(this.state.playerBoard);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
       command = "";
     }
   }
 
   benchEnemyClick(i, j){
+    this.setState({enemyPlaceFlag: true});
     var res = i + "" + j
     command += res
     console.log(command)
     if (command.length == 4){
-      axios.get('http://localhost:5000/enemy_move/' + command)
-      .then(response => {
-        console.log(response);
-        // this.forceUpdate();
-        this.update(response);
-        this.checkGameFinished();
-        console.log(this.state.playerBoard);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
       command = "";
     }
   }
@@ -229,7 +239,7 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
-        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imagePlayerClick(BENCH, i+j))}} /> </button>)
+        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.benchPlayerClick(i, j))}} /> </button>)
       }
     }
     return myHTML
@@ -255,7 +265,7 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
-        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imageEnemyClick(BENCH, i+j))}} /> </button>)
+        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.benchEnemyClick(i, j))}} /> </button>)
       }
     }
     return myHTML
@@ -267,7 +277,7 @@ class App extends React.Component {
     var enemyImages = this.imageEnemyHTMLCode(this.state.enemyBoard);
 
     var playerBench = this.playerBenchHTMLCode(this.state.playerBench);
-    var enemyBench = this.playerBenchHTMLCode(this.state.enemyBench);
+    var enemyBench = this.enemyBenchHTMLCode(this.state.enemyBench);
 
 
     let playerWinTextArray = ["", "PLAYER 1 WINS", "GAME DRAWN"]

@@ -13,9 +13,8 @@ class Player():
 		else:
 			self.bench[1].append(piece)
 
-	def remove_piece_from_bench(self, piece):
-		# self.bench.remove(piece)
-		pass
+	def remove_piece_from_bench(self, row, col):
+		self.bench[row][col] = "--"
 
 	def return_bench(self):
 		return self.bench
@@ -167,13 +166,13 @@ class Board():
 		if len(self.last_six_moves) == 6 and self.last_six_moves[0] == self.last_six_moves[2] and self.last_six_moves[0] == self.last_six_moves[4] and self.last_six_moves[1] == self.last_six_moves[3] and self.last_six_moves[1] == self.last_six_moves[5]:
 			self.done = GAME_DRAWN
 
-
-
-	def place_piece(self, piece, new_row, new_col):
-		if piece in self.player.bench and self.board[new_row][new_col] == "--":
+	def place_piece(self, bench_row, bench_col, new_row, new_col):
+		piece = self.player.return_bench()[bench_row][bench_col]
+		if (piece in self.player.bench[0] or piece in self.player.bench[1]) and self.board[new_row][new_col] == "--":
 			self.board[new_row][new_col] = piece
-			self.player.remove_piece_from_bench(piece)
+			self.player.remove_piece_from_bench(bench_row, bench_col)
 		else:
+			print((piece in self.player.bench[0] or piece in self.player.bench[1]))
 			print("this is not a valid placement")
 
 	def set_board(self, new_board):

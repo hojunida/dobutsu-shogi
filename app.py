@@ -83,5 +83,32 @@ def enemy_move(command):
     else:
         return "input is not 4 digits"
 
+@app.route('/player_place/<command>')
+def player_place(command):
+    if len(command) == 4: #add in int conversion check
+        global player_board, enemy_board
+        player_board.place_piece(int(command[0]), int(command[1]), int(command[2]), int(command[3]))
+        enemy_board.set_board(player_board.flip_board())
+        player_res = player_board.board_to_string("player")
+        enemy_res = enemy_board.board_to_string("enemy")
+        player_res.update(enemy_res)
+        return player_res
+    else:
+        return "input is not 4 digits"
+
+@app.route('/enemy_place/<command>')
+def enemy_place(command):
+    print(command)
+    if len(command) == 4: #add in int conversion check
+        global player_board, enemy_board
+        enemy_board.place_piece(int(command[0]), int(command[1]), int(command[2]), int(command[3]))
+        player_board.set_board(enemy_board.flip_board())
+        player_res = player_board.board_to_string("player")
+        enemy_res = enemy_board.board_to_string("enemy")
+        player_res.update(enemy_res)
+        return player_res
+    else:
+        return "input is not 4 digits"
+
 if __name__ == '__main__':
     app.run()
