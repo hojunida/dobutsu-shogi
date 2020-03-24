@@ -81,7 +81,7 @@ class App extends React.Component {
     var res = i + "" + j;
     command += res;
     console.log(command);
-    if (command.length == 4 && this.state.placeFlag == false){
+    if (command.length == 4 && this.state.playerPlaceFlag == false){
       axios.get('http://localhost:5000/player_move/' + command)
       .then(response => {
         console.log(response);
