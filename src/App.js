@@ -27,6 +27,8 @@ class App extends React.Component {
       enemyBoard: [["EG","EL","EE"], ["--","EC","--"], ["--","MC","--"], ["ME","ML","MG"]],
       playerBench: [["--","--","--"], ["--","--","--"]],
       enemyBench: [["--","--","--"], ["--","--","--"]],
+      playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]],
+      enemyHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]],
       playerWin: 0,
       enemyWin: 0,
       playerPlaceFlag: false,
@@ -75,12 +77,34 @@ class App extends React.Component {
     this.setState({enemyBench: response["data"]["enemyBench"]});
     this.setState({playerPlaceFlag: false});
     this.setState({enemyPlaceFlag: false});
+    this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
+    this.setState({enemyHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
   }
 
   imagePlayerClick(i, j){
     var res = i + "" + j;
     command += res;
     console.log(command);
+
+    if(command.length == 2){
+      axios.get('http://localhost:5000/player_valid_space/' + command)
+      .then(response => {
+        // console.log(response);
+        var spaces = response["data"]["valid_space"]
+        var highlight = this.state.playerHighlight;
+        for (var i = 0; i < spaces.length; i++){
+          //prob should check if length = 2 but whatever
+          highlight[spaces[i][0]][spaces[i][1]] = true;
+        }
+        this.setState({playerHighlight: highlight});
+        console.log(highlight);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+
+
     if (command.length == 4 && this.state.playerPlaceFlag == false){
       axios.get('http://localhost:5000/player_move/' + command)
       .then(response => {
@@ -115,6 +139,25 @@ class App extends React.Component {
     var res = i + "" + j;
     command += res;
     console.log(command);
+
+    if(command.length == 2){
+      axios.get('http://localhost:5000/enemy_valid_space/' + command)
+      .then(response => {
+        // console.log(response);
+        var spaces = response["data"]["valid_space"]
+        var highlight = this.state.enemyHighlight;
+        for (var i = 0; i < spaces.length; i++){
+          //prob should check if length = 2 but whatever
+          highlight[spaces[i][0]][spaces[i][1]] = true;
+        }
+        this.setState({enemyHighlight: highlight});
+        console.log(highlight);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+
     if (command.length == 4 && this.state.enemyPlaceFlag == false){
       axios.get('http://localhost:5000/enemy_move/' + command)
       .then(response => {
@@ -189,6 +232,9 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
+        if (this.state.playerHighlight[i][j]){
+          className += "selected";
+        }
         myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imagePlayerClick(i, j))}} /> </button>)
       }
     }
@@ -214,6 +260,9 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
+        if (this.state.enemyHighlight[i][j]){
+          className += "selected";
+        }
         myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imageEnemyClick(i, j))}} /> </button>)
       }
     }
@@ -239,6 +288,9 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
+        if (this.state.playerHighlight[i][j]){
+          className += "selected";
+        }
         myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.benchPlayerClick(i, j))}} /> </button>)
       }
     }
@@ -265,6 +317,9 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
+        if (this.state.enemyHighlight[i][j]){
+          className += "selected";
+        }
         myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.benchEnemyClick(i, j))}} /> </button>)
       }
     }

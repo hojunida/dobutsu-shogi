@@ -64,12 +64,30 @@ img {
   height:101px;
 }
 
+.piecea1selected {
+  position: absolute;
+  z-index: 2;
+  top: 6px;
+  left: 6px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
+}
+
 .pieceb1 {
   position: absolute;
   z-index: 2;
   top: 6px;
   left: 120px;
   height:101px;
+}
+
+.pieceb1selected {
+  position: absolute;
+  z-index: 2;
+  top: 6px;
+  left: 120px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
 }
 
 .piecec1 {
@@ -80,12 +98,30 @@ img {
   height:101px;
 }
 
+.piecec1selected {
+  position: absolute;
+  z-index: 2;
+  top: 6px;
+  left: 235px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
+}
+
 .piecea2 {
   position: absolute;
   z-index: 2;
   top: 121px;
   left: 6px;
   height:101px;
+}
+
+.piecea2selected {
+  position: absolute;
+  z-index: 2;
+  top: 121px;
+  left: 6px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
 }
 
 .pieceb2 {
@@ -96,12 +132,30 @@ img {
   height:101px;
 }
 
+.pieceb2selected {
+  position: absolute;
+  z-index: 2;
+  top: 121px;
+  left: 120px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
+}
+
 .piecec2 {
   position: absolute;
   z-index: 2;
   top: 121px;
   left: 235px;
   height:101px;
+}
+
+.piecec2selected {
+  position: absolute;
+  z-index: 2;
+  top: 121px;
+  left: 235px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
 }
 
 .piecea3 {
@@ -112,12 +166,30 @@ img {
   height:101px;
 }
 
+.piecea3selected {
+  position: absolute;
+  z-index: 2;
+  top: 236px;
+  left: 6px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
+}
+
 .pieceb3 {
   position: absolute;
   z-index: 2;
   top: 236px;
   left: 120px;
   height:101px;
+}
+
+.pieceb3selected {
+  position: absolute;
+  z-index: 2;
+  top: 236px;
+  left: 120px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
 }
 
 .piecec3 {
@@ -128,12 +200,30 @@ img {
   height:101px;
 }
 
+.piecec3selected {
+  position: absolute;
+  z-index: 2;
+  top: 236px;
+  left: 235px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
+}
+
 .piecea4 {
   position: absolute;
   z-index: 2;
   top: 351px;
   left: 6px;
   height:101px;
+}
+
+.piecea4selected {
+  position: absolute;
+  z-index: 2;
+  top: 351px;
+  left: 6px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
 }
 
 .pieceb4 {
@@ -144,12 +234,30 @@ img {
   height:101px;
 }
 
+.pieceb4selected {
+  position: absolute;
+  z-index: 2;
+  top: 351px;
+  left: 120px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
+}
+
 .piecec4 {
   position: absolute;
   z-index: 2;
   top: 351px;
   left: 235px;
   height:101px;
+}
+
+.piecec4selected {
+  position: absolute;
+  z-index: 2;
+  top: 351px;
+  left: 235px;
+  height:101px;
+  border: 2px solid rgb(255, 0, 0);
 }
 
 .wintext {

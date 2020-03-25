@@ -98,7 +98,6 @@ def player_place(command):
 
 @app.route('/enemy_place/<command>')
 def enemy_place(command):
-    print(command)
     if len(command) == 4: #add in int conversion check
         global player_board, enemy_board
         enemy_board.place_piece(int(command[0]), int(command[1]), int(command[2]), int(command[3]))
@@ -109,6 +108,24 @@ def enemy_place(command):
         return player_res
     else:
         return "input is not 4 digits"
+
+@app.route('/player_valid_space/<command>')
+def player_valid_space(command):
+    if len(command) == 2: #add in int conversion check
+        global player_board
+        return {"valid_space" : player_board.find_valid_spaces(int(command[0]), int(command[1]))}
+    else:
+        return "input is not 2 digits"
+
+@app.route('/enemy_valid_space/<command>')
+def enemy_valid_space(command):
+    if len(command) == 2: #add in int conversion check
+        global enemy_board
+        return {"valid_space" : enemy_board.find_valid_spaces(int(command[0]), int(command[1]))}
+    else:
+        return "input is not 2 digits"
+
+
 
 if __name__ == '__main__':
     app.run()
