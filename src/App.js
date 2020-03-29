@@ -31,8 +31,8 @@ class App extends React.Component {
       enemyHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]],
       playerWin: 0,
       enemyWin: 0,
-      playerPlaceFlag: false,
-      enemyPlaceFlag: false
+      playerPlaceFlag: -1,
+      enemyPlaceFlag: -1
     };
     this.resetBoard();
     // this.imageClick = this.imageClick.bind();
@@ -75,8 +75,8 @@ class App extends React.Component {
     this.setState({enemyBoard: response["data"]["enemyBoard"]});
     this.setState({playerBench: response["data"]["playerBench"]});
     this.setState({enemyBench: response["data"]["enemyBench"]});
-    this.setState({playerPlaceFlag: false});
-    this.setState({enemyPlaceFlag: false});
+    this.setState({playerPlaceFlag: -1});
+    this.setState({enemyPlaceFlag: -1});
     this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
     this.setState({enemyHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
   }
@@ -92,10 +92,11 @@ class App extends React.Component {
         // console.log(response);
         var spaces = response["data"]["valid_space"]
         var highlight = this.state.playerHighlight;
-        for (var i = 0; i < spaces.length; i++){
+        for (var k = 0; k < spaces.length; k++){
           //prob should check if length = 2 but whatever
-          highlight[spaces[i][0]][spaces[i][1]] = true;
+          highlight[spaces[k][0]][spaces[k][1]] = true;
         }
+        highlight[i][j] = true;
         this.setState({playerHighlight: highlight});
         console.log(highlight);
       })
@@ -105,7 +106,7 @@ class App extends React.Component {
     }
 
 
-    if (command.length == 4 && this.state.playerPlaceFlag == false){
+    if (command.length == 4 && this.state.playerPlaceFlag < 0){
       axios.get('http://localhost:5000/player_move/' + command)
       .then(response => {
         console.log(response);
@@ -119,7 +120,7 @@ class App extends React.Component {
       });
       command = "";
     }
-    else if (command.length == 4 && this.state.playerPlaceFlag == true){
+    else if (command.length == 4 && this.state.playerPlaceFlag >= 0){
       axios.get('http://localhost:5000/player_place/' + command)
       .then(response => {
         console.log(response);
@@ -146,10 +147,11 @@ class App extends React.Component {
         // console.log(response);
         var spaces = response["data"]["valid_space"]
         var highlight = this.state.enemyHighlight;
-        for (var i = 0; i < spaces.length; i++){
+        for (var k = 0; k < spaces.length; k++){
           //prob should check if length = 2 but whatever
-          highlight[spaces[i][0]][spaces[i][1]] = true;
+          highlight[spaces[k][0]][spaces[k][1]] = true;
         }
+        highlight[i][j] = true;
         this.setState({enemyHighlight: highlight});
         console.log(highlight);
       })
@@ -158,7 +160,7 @@ class App extends React.Component {
       });
     }
 
-    if (command.length == 4 && this.state.enemyPlaceFlag == false){
+    if (command.length == 4 && this.state.enemyPlaceFlag < 0){
       axios.get('http://localhost:5000/enemy_move/' + command)
       .then(response => {
         console.log(response);
@@ -172,7 +174,7 @@ class App extends React.Component {
       });
       command = "";
     }
-    else if (command.length == 4 && this.state.enemyPlaceFlag == true){
+    else if (command.length == 4 && this.state.enemyPlaceFlag >= 0){
       axios.get('http://localhost:5000/enemy_place/' + command)
       .then(response => {
         console.log(response);
@@ -189,22 +191,24 @@ class App extends React.Component {
   }
 
   benchPlayerClick(i, j){
-    this.setState({playerPlaceFlag: true});
+    this.setState({playerPlaceFlag: i*3+j});
     var res = i + "" + j
     command += res
     console.log(command)
     if (command.length == 4){
       command = "";
+      this.setState({playerPlaceFlag: -1});
     }
   }
 
   benchEnemyClick(i, j){
-    this.setState({enemyPlaceFlag: true});
+    this.setState({enemyPlaceFlag: i*3+j});
     var res = i + "" + j
     command += res
     console.log(command)
     if (command.length == 4){
       command = "";
+      this.setState({enemyPlaceFlag: -1});
     }
   }
 
@@ -288,7 +292,7 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
-        if (this.state.playerHighlight[i][j]){
+        if (this.state.playerPlaceFlag == i*3+j){
           className += "selected";
         }
         myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.benchPlayerClick(i, j))}} /> </button>)
@@ -317,7 +321,7 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
-        if (this.state.enemyHighlight[i][j]){
+        if (this.state.enemyPlaceFlag == i*3+j){
           className += "selected";
         }
         myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.benchEnemyClick(i, j))}} /> </button>)

@@ -107,6 +107,15 @@ class Board():
 		else:
 			return []
 
+	def find_empty_spaces(self,row,col):
+		empty_spaces = []
+		for i in range(len(self.board)):
+			for j in range(len(self.board[0])):
+				if self.board[i][j] == "--":
+					empty_spaces.append((x,y))
+		return empty_spaces
+					
+
 	def find_unsafe_spaces(self):
 		unsafe_spaces = []
 		for i in range(len(self.board)):
