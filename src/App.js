@@ -195,6 +195,25 @@ class App extends React.Component {
     var res = i + "" + j
     command += res
     console.log(command)
+
+    if(command.length == 2){
+      axios.get('http://localhost:5000/player_empty_space/' + command)
+      .then(response => {
+        // console.log(response);
+        var spaces = response["data"]["valid_space"]
+        var highlight = this.state.enemyHighlight;
+        for (var k = 0; k < spaces.length; k++){
+          //prob should check if length = 2 but whatever
+          highlight[spaces[k][0]][spaces[k][1]] = true;
+        }
+        this.setState({playerHighlight: highlight});
+        console.log(highlight);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+
     if (command.length == 4){
       command = "";
       this.setState({playerPlaceFlag: -1});
@@ -206,6 +225,25 @@ class App extends React.Component {
     var res = i + "" + j
     command += res
     console.log(command)
+
+    if(command.length == 2){
+      axios.get('http://localhost:5000/enemy_empty_space/' + command)
+      .then(response => {
+        // console.log(response);
+        var spaces = response["data"]["valid_space"]
+        var highlight = this.state.enemyHighlight;
+        for (var k = 0; k < spaces.length; k++){
+          //prob should check if length = 2 but whatever
+          highlight[spaces[k][0]][spaces[k][1]] = true;
+        }
+        this.setState({enemyHighlight: highlight});
+        console.log(highlight);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+
     if (command.length == 4){
       command = "";
       this.setState({enemyPlaceFlag: -1});

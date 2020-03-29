@@ -112,7 +112,7 @@ class Board():
 		for i in range(len(self.board)):
 			for j in range(len(self.board[0])):
 				if self.board[i][j] == "--":
-					empty_spaces.append((x,y))
+					empty_spaces.append((i,j))
 		return empty_spaces
 					
 
