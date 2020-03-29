@@ -94,7 +94,7 @@ class App extends React.Component {
 
     if(command.length == 2){
       this.setState({pieceClickedFirst: value});
-      if (this.state.pieceClickedFirst.indexOf("M") != -1){
+      if (value.indexOf("M") != -1){
         axios.get('http://localhost:5000/player_valid_space/' + command)
         .then(response => {
           // console.log(response);
