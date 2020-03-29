@@ -24,10 +24,10 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
-      playerBoard: [["EG","EL","EE"], ["--","EC","--"], ["--","MC","--"], ["ME","ML","MG"]],
+      board: [["EG","EL","EE"], ["--","EC","--"], ["--","MC","--"], ["ME","ML","MG"]],
       playerBench: [["--","--","--"], ["--","--","--"]],
       enemyBench: [["--","--","--"], ["--","--","--"]],
-      playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]],
+      highlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]],
       playerWin: 0,
       enemyWin: 0,
       playerPlaceFlag: -1,
@@ -71,12 +71,12 @@ class App extends React.Component {
   }
 
   update(response){
-    this.setState({playerBoard: response["data"]["playerBoard"]});
+    this.setState({board: response["data"]["playerBoard"]});
     this.setState({playerBench: response["data"]["playerBench"]});
     this.setState({enemyBench: response["data"]["enemyBench"]});
     this.setState({playerPlaceFlag: -1});
     this.setState({enemyPlaceFlag: -1});
-    this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
+    this.setState({highlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
     this.setState({pieceClickedFirst: "--"});
   }
 
@@ -99,13 +99,13 @@ class App extends React.Component {
         .then(response => {
           // console.log(response);
           var spaces = response["data"]["valid_space"]
-          var highlight = this.state.playerHighlight;
+          var highlight = this.state.highlight;
           for (var k = 0; k < spaces.length; k++){
             //prob should check if length = 2 but whatever
             highlight[spaces[k][0]][spaces[k][1]] = true;
           }
           highlight[i][j] = true;
-          this.setState({playerHighlight: highlight});
+          this.setState({highlight: highlight});
           console.log(highlight);
         })
         .catch(function (error) {
@@ -117,13 +117,13 @@ class App extends React.Component {
         .then(response => {
           // console.log(response);
           var spaces = response["data"]["valid_space"]
-          var highlight = this.state.playerHighlight;
+          var highlight = this.state.highlight;
           for (var k = 0; k < spaces.length; k++){
             //prob should check if length = 2 but whatever
             highlight[3-spaces[k][0]][2-spaces[k][1]] = true;
           }
           highlight[i][j] = true;
-          this.setState({playerHighlight: highlight});
+          this.setState({highlight: highlight});
           console.log(highlight);
         })
         .catch(function (error) {
@@ -142,7 +142,7 @@ class App extends React.Component {
             // this.forceUpdate();
             this.update(response);
             this.checkGameFinished();
-            console.log(this.state.playerBoard);
+            console.log(this.state.board);
           })
           .catch(function (error) {
             console.log(error);
@@ -156,7 +156,7 @@ class App extends React.Component {
             // this.forceUpdate();
             this.update(response);
             this.checkGameFinished();
-            console.log(this.state.playerBoard);
+            console.log(this.state.board);
           })
           .catch(function (error) {
             console.log(error);
@@ -172,7 +172,7 @@ class App extends React.Component {
             // this.forceUpdate();
             this.update(response);
             this.checkGameFinished();
-            console.log(this.state.playerBoard);
+            console.log(this.state.board);
           })
           .catch(function (error) {
             console.log(error);
@@ -186,7 +186,7 @@ class App extends React.Component {
             // this.forceUpdate();
             this.update(response);
             this.checkGameFinished();
-            console.log(this.state.playerBoard);
+            console.log(this.state.board);
           })
           .catch(function (error) {
             console.log(error);
@@ -209,12 +209,12 @@ class App extends React.Component {
       .then(response => {
         // console.log(response);
         var spaces = response["data"]["valid_space"]
-        var highlight = this.state.playerHighlight;
+        var highlight = this.state.highlight;
         for (var k = 0; k < spaces.length; k++){
           //prob should check if length = 2 but whatever
           highlight[spaces[k][0]][spaces[k][1]] = true;
         }
-        this.setState({playerHighlight: highlight});
+        this.setState({highlight: highlight});
         console.log(highlight);
       })
       .catch(function (error) {
@@ -225,7 +225,7 @@ class App extends React.Component {
     if (command.length == 4){
       command = "";
       this.setState({playerPlaceFlag: -1});
-      this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
+      this.setState({highlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
       this.setState({pieceClickedFirst: "--"});
     }
   }
@@ -242,12 +242,12 @@ class App extends React.Component {
       .then(response => {
         // console.log(response);
         var spaces = response["data"]["valid_space"]
-        var highlight = this.state.playerHighlight;
+        var highlight = this.state.highlight;
         for (var k = 0; k < spaces.length; k++){
           //prob should check if length = 2 but whatever
           highlight[3-spaces[k][0]][2-spaces[k][1]] = true;
         }
-        this.setState({playerHighlight: highlight});
+        this.setState({highlight: highlight});
         console.log(highlight);
       })
       .catch(function (error) {
@@ -259,7 +259,7 @@ class App extends React.Component {
       command = "";
       this.setState({pieceClickedFirst: "--"});
       this.setState({enemyPlaceFlag: -1});
-      this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
+      this.setState({highlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
     }
   }
 
@@ -287,7 +287,7 @@ class App extends React.Component {
     for (let i = 0; i < array.length; i++){
       for (let j = 0; j < array[0].length; j++){
         var className = this.getClass(i,j);
-        if (this.state.playerHighlight[i][j]){
+        if (this.state.highlight[i][j]){
           className += "selected";
         }
         myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imagePlayerClick(i, j, array[i][j]))}} /> </button>)
@@ -345,7 +345,7 @@ class App extends React.Component {
 
   render() {
 
-    var playerImages = this.imagePlayerHTMLCode(this.state.playerBoard);
+    var playerImages = this.imagePlayerHTMLCode(this.state.board);
 
     var playerBench = this.playerBenchHTMLCode(this.state.playerBench);
     var enemyBench = this.enemyBenchHTMLCode(this.state.enemyBench);
