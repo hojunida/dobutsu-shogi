@@ -217,6 +217,7 @@ class App extends React.Component {
     if (command.length == 4){
       command = "";
       this.setState({playerPlaceFlag: -1});
+      this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
     }
   }
 
@@ -247,6 +248,7 @@ class App extends React.Component {
     if (command.length == 4){
       command = "";
       this.setState({enemyPlaceFlag: -1});
+      this.setState({enemyHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
     }
   }
 
