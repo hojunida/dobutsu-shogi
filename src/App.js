@@ -32,7 +32,8 @@ class App extends React.Component {
       playerWin: 0,
       enemyWin: 0,
       playerPlaceFlag: -1,
-      enemyPlaceFlag: -1
+      enemyPlaceFlag: -1,
+      pieceClickedFirst: "--"
     };
     this.resetBoard();
     // this.imageClick = this.imageClick.bind();
@@ -79,14 +80,23 @@ class App extends React.Component {
     this.setState({enemyPlaceFlag: -1});
     this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
     this.setState({enemyHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
+    this.setState({pieceClickedFirst: "--"});
   }
 
-  imagePlayerClick(i, j){
+  invertCommand(command){ //hardcoded for 2 digit commands
+    var first = 3-parseInt(command.substring(0,1))
+    var second = 2-parseInt(command.substring(1))
+    return first.toString() + second.toString()
+  }
+
+
+  imagePlayerClick(i, j, value){
     var res = i + "" + j;
     command += res;
     console.log(command);
 
     if(command.length == 2){
+      this.setState({pieceClickedFirst: value});
       axios.get('http://localhost:5000/player_valid_space/' + command)
       .then(response => {
         // console.log(response);
@@ -105,34 +115,67 @@ class App extends React.Component {
       });
     }
 
-
-    if (command.length == 4 && this.state.playerPlaceFlag < 0){
-      axios.get('http://localhost:5000/player_move/' + command)
-      .then(response => {
-        console.log(response);
-        // this.forceUpdate();
-        this.update(response);
-        this.checkGameFinished();
-        console.log(this.state.playerBoard);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-      command = "";
-    }
-    else if (command.length == 4 && this.state.playerPlaceFlag >= 0){
-      axios.get('http://localhost:5000/player_place/' + command)
-      .then(response => {
-        console.log(response);
-        // this.forceUpdate();
-        this.update(response);
-        this.checkGameFinished();
-        console.log(this.state.playerBoard);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-      command = "";
+    if (command.length == 4){
+      if (this.state.pieceClickedFirst.indexOf("M") != -1){
+        if (this.state.playerPlaceFlag < 0){
+          axios.get('http://localhost:5000/player_move/' + command)
+          .then(response => {
+            console.log(response);
+            // this.forceUpdate();
+            this.update(response);
+            this.checkGameFinished();
+            console.log(this.state.playerBoard);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+          command = "";
+        }
+        else if (this.state.playerPlaceFlag >= 0){
+          axios.get('http://localhost:5000/player_place/' + command)
+          .then(response => {
+            console.log(response);
+            // this.forceUpdate();
+            this.update(response);
+            this.checkGameFinished();
+            console.log(this.state.playerBoard);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+          command = "";
+        }
+      }
+      else{
+        if (command.length == 4 && this.state.enemyPlaceFlag < 0){
+          axios.get('http://localhost:5000/enemy_move/' + this.invertCommand(command.substring(0,2)) + this.invertCommand(command.substring(2,4)))
+          .then(response => {
+            console.log(response);
+            // this.forceUpdate();
+            this.update(response);
+            this.checkGameFinished();
+            console.log(this.state.playerBoard);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+          command = "";
+        }
+        else if (command.length == 4 && this.state.enemyPlaceFlag >= 0){
+          axios.get('http://localhost:5000/enemy_place/' + command.substring(0,2) + this.invertCommand(command.substring(2,4)))
+          .then(response => {
+            console.log(response);
+            // this.forceUpdate();
+            this.update(response);
+            this.checkGameFinished();
+            console.log(this.state.playerBoard);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+          command = "";
+        }
+      }
     }
   }
 
@@ -218,6 +261,8 @@ class App extends React.Component {
       command = "";
       this.setState({playerPlaceFlag: -1});
       this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
+      this.setState({enemyPlaceFlag: -1});
+      this.setState({enemyHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
     }
   }
 
@@ -232,12 +277,12 @@ class App extends React.Component {
       .then(response => {
         // console.log(response);
         var spaces = response["data"]["valid_space"]
-        var highlight = this.state.enemyHighlight;
+        var highlight = this.state.playerHighlight;
         for (var k = 0; k < spaces.length; k++){
           //prob should check if length = 2 but whatever
-          highlight[spaces[k][0]][spaces[k][1]] = true;
+          highlight[3-spaces[k][0]][2-spaces[k][1]] = true;
         }
-        this.setState({enemyHighlight: highlight});
+        this.setState({playerHighlight: highlight});
         console.log(highlight);
       })
       .catch(function (error) {
@@ -248,7 +293,7 @@ class App extends React.Component {
     if (command.length == 4){
       command = "";
       this.setState({enemyPlaceFlag: -1});
-      this.setState({enemyHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
+      this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
     }
   }
 
@@ -279,7 +324,7 @@ class App extends React.Component {
         if (this.state.playerHighlight[i][j]){
           className += "selected";
         }
-        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imagePlayerClick(i, j))}} /> </button>)
+        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.imagePlayerClick(i, j, array[i][j]))}} /> </button>)
       }
     }
     return myHTML
