@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import background from './images/background.jpg';
 import bench from './images/bench.jpg';
+import flippedBench from './images/flippedBench.jpg';
 import ML from './images/ML.jpg';
 import MH from './images/MH.jpg';
 import MC from './images/MC.jpg';
@@ -433,32 +434,20 @@ class App extends React.Component {
 
     var htmlcode = (
       <div>
-        <div class="split left">
-          <div class="wintext">
-            {playerWinText}
-          </div>
-          <img src={background} class="background" />
-          <div class="board">
-           {playerImages}
-          </div>
-          <img src={bench} class="bench" />
-          <div class="bench">
-            {playerBench}
-          </div>
+        <div class="wintext">
+          {playerWinText}
         </div>
-
-        <div class= "split right">
-          <div class="wintext">
-            {enemyWinText}
-          </div>
-          <img src={background} class="background" />        
-          <div class="board">        
-            {enemyImages}
-          </div>
-          <img src={bench} class="bench" />
-          <div class="bench">
-            {enemyBench}
-          </div>
+        <img src={flippedBench} class="flippedBench" />
+        <div class="flippedBench">
+          {enemyBench}
+        </div>
+        <img src={background} class="background" />
+        <div class="board">
+         {playerImages}
+        </div>
+        <img src={bench} class="bench" />
+        <div class="bench">
+          {playerBench}
         </div>
       </div>
     );
