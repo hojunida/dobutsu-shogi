@@ -7,14 +7,23 @@ class Player():
 	def __init__(self):
 		self.bench = [[],[]]
 
+	def matrix_to_array(self, matrix): # only for this specific 3x2 matrix
+		array = matrix[0]
+		array.extend(matrix[1])
+		return array
+
+	def array_to_matrix(self,array): # only for this specific 3x2 matrix
+		return [array[:3], array[3:]]
+
 	def add_piece_to_bench(self, piece):
-		if len(self.bench[0]) < 3:
-			self.bench[0].append(piece)
-		else:
-			self.bench[1].append(piece)
+		array = self.matrix_to_array(self.bench)
+		array.append(piece)
+		self.bench = self.array_to_matrix(array)
 
 	def remove_piece_from_bench(self, row, col):
-		self.bench[row][col] = "--"
+		array = self.matrix_to_array(self.bench)
+		del array[row*3+col]
+		self.bench = self.array_to_matrix(array)
 
 	def return_bench(self):
 		return self.bench
