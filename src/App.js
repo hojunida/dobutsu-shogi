@@ -94,22 +94,42 @@ class App extends React.Component {
 
     if(command.length == 2){
       this.setState({pieceClickedFirst: value});
-      axios.get('http://localhost:5000/player_valid_space/' + command)
-      .then(response => {
-        // console.log(response);
-        var spaces = response["data"]["valid_space"]
-        var highlight = this.state.playerHighlight;
-        for (var k = 0; k < spaces.length; k++){
-          //prob should check if length = 2 but whatever
-          highlight[spaces[k][0]][spaces[k][1]] = true;
-        }
-        highlight[i][j] = true;
-        this.setState({playerHighlight: highlight});
-        console.log(highlight);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+      if (this.state.pieceClickedFirst.indexOf("M") != -1){
+        axios.get('http://localhost:5000/player_valid_space/' + command)
+        .then(response => {
+          // console.log(response);
+          var spaces = response["data"]["valid_space"]
+          var highlight = this.state.playerHighlight;
+          for (var k = 0; k < spaces.length; k++){
+            //prob should check if length = 2 but whatever
+            highlight[spaces[k][0]][spaces[k][1]] = true;
+          }
+          highlight[i][j] = true;
+          this.setState({playerHighlight: highlight});
+          console.log(highlight);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      }
+      else{
+        axios.get('http://localhost:5000/enemy_valid_space/' + this.invertCommand(command.substring(0,2)))
+        .then(response => {
+          // console.log(response);
+          var spaces = response["data"]["valid_space"]
+          var highlight = this.state.playerHighlight;
+          for (var k = 0; k < spaces.length; k++){
+            //prob should check if length = 2 but whatever
+            highlight[3-spaces[k][0]][2-spaces[k][1]] = true;
+          }
+          highlight[i][j] = true;
+          this.setState({playerHighlight: highlight});
+          console.log(highlight);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      }
     }
 
     if (command.length == 4){
