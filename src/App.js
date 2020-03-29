@@ -113,6 +113,7 @@ class App extends React.Component {
     }
 
     if (command.length == 4){
+      console.log(this.state.pieceClickedFirst)
       if (this.state.pieceClickedFirst.indexOf("M") != -1){
         if (this.state.playerPlaceFlag < 0){
           axios.get('http://localhost:5000/player_move/' + command)
@@ -176,13 +177,14 @@ class App extends React.Component {
     }
   }
 
-  benchPlayerClick(i, j){
+  benchPlayerClick(i, j, value){
     this.setState({playerPlaceFlag: i*3+j});
     var res = i + "" + j
     command += res
     console.log(command)
 
     if(command.length == 2){
+      this.setState({pieceClickedFirst: value});
       axios.get('http://localhost:5000/player_empty_space/' + command)
       .then(response => {
         // console.log(response);
@@ -204,17 +206,18 @@ class App extends React.Component {
       command = "";
       this.setState({playerPlaceFlag: -1});
       this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
-      this.setState({enemyPlaceFlag: -1});
+      this.setState({pieceClickedFirst: "--"});
     }
   }
 
-  benchEnemyClick(i, j){
+  benchEnemyClick(i, j, value){
     this.setState({enemyPlaceFlag: i*3+j});
     var res = i + "" + j
     command += res
     console.log(command)
 
     if(command.length == 2){
+      this.setState({pieceClickedFirst: "E" + value.substring(1)});
       axios.get('http://localhost:5000/enemy_empty_space/' + command)
       .then(response => {
         // console.log(response);
@@ -234,6 +237,7 @@ class App extends React.Component {
 
     if (command.length == 4){
       command = "";
+      this.setState({pieceClickedFirst: "--"});
       this.setState({enemyPlaceFlag: -1});
       this.setState({playerHighlight: [[false, false, false], [false, false, false], [false, false, false], [false, false, false]]});
     }
@@ -274,11 +278,6 @@ class App extends React.Component {
 
   playerBenchHTMLCode(array){
     var imageMap = {
-      "EG": EG,
-      "EL": EL,
-      "EE": EE,
-      "EC": EC,
-      "EH": EH,
       "MG": MG,
       "ML": ML,
       "ME": ME,
@@ -294,7 +293,7 @@ class App extends React.Component {
         if (this.state.playerPlaceFlag == i*3+j){
           className += "selected";
         }
-        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.benchPlayerClick(i, j))}} /> </button>)
+        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.benchPlayerClick(i, j, array[i][j]))}} /> </button>)
       }
     }
     return myHTML
@@ -303,16 +302,11 @@ class App extends React.Component {
 
   enemyBenchHTMLCode(array){
     var imageMap = {
-      "EG": EG,
-      "EL": EL,
-      "EE": EE,
-      "EC": EC,
-      "EH": EH,
-      "MG": MG,
-      "ML": ML,
-      "ME": ME,
-      "MC": MC,
-      "MH": MH,
+      "MG": EG,
+      "ML": EL,
+      "ME": EE,
+      "MC": EC,
+      "MH": EH,
       "--": TP
     }
     var myHTML = [];
@@ -323,7 +317,7 @@ class App extends React.Component {
         if (this.state.enemyPlaceFlag == i*3+j){
           className += "selected";
         }
-        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.benchEnemyClick(i, j))}} /> </button>)
+        myHTML.push(<button> <img src= {imageMap[array[i][j]]} class= {className} onClick={() => {console.log(this.benchEnemyClick(i, j, array[i][j]))}} /> </button>)
       }
     }
     return myHTML
