@@ -1,6 +1,6 @@
 import copy
-import numpy as np
-import pickle
+import time
+import random
 
 GAME_NOT_DONE = 0
 GAME_WON = 1
@@ -10,157 +10,184 @@ class Game():
 	def __init__(self):
 		self.p1_board = Board()
 		self.p2_board = Board()
-		self.p1 = Player()
-		self.p2 = Player()
-
-	def giveReward(self):
-		result = self.p1.check_game_state()
-		if result is not None:
-			self.p1.feedReward(result)
-			self.p2.feedReward(result*-1)
-		else:
-			result2 = self.p2.check_game_state()
-			if result2 is not None:
-				self.p2.feedReward(result2)
-				self.p1.feedReward(result2*-1)
+		self.max_depth = 7
 
 	def reset(self):
 		self.p1_board = Board()
 		self.p2_board = Board()
-		self.p1.reset()
-		self.p2.reset()
 
-	def savePolicy(self):
-		fw = open('policy.txt', 'wb')
- 		pickle.dump(self.p2.states_value, fw)
-		fw.close()
+	def _minimax(self, current_depth, p1_board, p2_board, is_max_turn, alpha, beta):
 
-	def loadPolicy(self):
-		fr = open('policy.txt', 'rb')
-		self.p2.states_value = pickle.load(fr)
-		fr.close()
+		# p1_board.print_board()
+		# print("depth: " + str(current_depth))
 
-	def train(self, rounds=100):
-		for i in range(rounds):
-			# print(i)
-			if i % 1000 == 0:
-				print("Rounds {}".format(i))
-			turns = 0
-			while True:
-				# print()
-				# self.p1_board.print_board()
-				# print("p1 bench")
-				# self.p1_board.print_bench()
-				# raw_input("Press Enter to continue...")
-				# Player 1
-				turns += 1
-				positions = self.p1_board.find_all_next_move()
-				p1_action = self.p1.chooseAction(positions, self.p1_board)
-				# take action and upate board state
-				self.p1_board.set_board_from_hash(p1_action)
-				self.p2_board.set_flip_board_from_hash(p1_action)
-				self.p1.addState(p1_action)
-				# check board status if it is end
-				if self.p1.check_game_state() is not None:
-					# self.showBoard()
-					# ended with p1 either win or draw
-					# print(self.p1.check_game_state())
-					# print(turns)
-					# self.p1_board.print_board()
-					# raw_input("Press Enter to continue...")
-					self.giveReward()
-					self.reset()
-					break
-				else:
-					# Player 2
-					# self.p2_board.print_flip_board()
-					# print("p2 bench")
-					# self.p2_board.print_bench()
-					positions = self.p2_board.find_all_next_move()
-					p2_action = self.p2.chooseAction(positions, self.p2_board)
-					self.p2_board.set_board_from_hash(p2_action)
-					self.p1_board.set_flip_board_from_hash(p2_action)
-					self.p2.addState(p2_action)
+		if is_max_turn:
+			if current_depth == self.max_depth or p2_board.check_game_state() is not None:
+				# print("returning")
+				return self.evaluate(p2_board, p2_board.get_bench(), p1_board.get_bench()), ""
 
+			self.node_expanded += 1
 
-					if self.p2.check_game_state() is not None:
-						# self.showBoard()
-						# ended with p2 either win or draw
-						# print(self.p2.check_game_state()*-1)
-						# print(turns)
-						# self.p2_board.print_board()
-						# raw_input("Press Enter to continue...")
-						self.giveReward()
-						self.reset()
+			possible_action = p2_board.find_all_next_move()
+			# print("action len: " + str(len(possible_action)))
+			# if current_depth == 6:
+			# 	p2_board.print_board()
+			# 	print(possible_action)
+			# raw_input("Press Enter to continue...")
+
+			# random.shuffle(possible_action) #randomness
+			best_value = float('-inf') if is_max_turn else float('inf')
+			action_target = ""
+			for action in possible_action:
+				new_p2_board = copy.deepcopy(p2_board)
+				new_p2_board.set_board_from_hash(action)
+				new_p1_board = copy.deepcopy(p1_board)
+				new_p1_board.set_flip_board_from_hash(action)
+
+				eval_child, action_child = self._minimax(current_depth+1,new_p1_board, new_p2_board, not is_max_turn, alpha, beta)
+
+				if current_depth == 0:
+					print(eval_child)
+
+				if best_value < eval_child:
+					best_value = eval_child
+					action_target = action
+					alpha = max(alpha, best_value)
+					if beta <= alpha:
 						break
+		else:
+			if current_depth == self.max_depth or p1_board.check_game_state() is not None:
+				# print("returning")
+				return self.evaluate(p1_board, p1_board.get_bench(), p2_board.get_bench()), ""
+
+			self.node_expanded += 1
+
+			possible_action = p1_board.find_all_next_move()
+			# print("action len: " + str(len(possible_action)))
+			# if current_depth == 6:
+			# 	p1_board.print_board()
+			# 	print(possible_action)
+			# raw_input("Press Enter to continue...")
+
+			# random.shuffle(possible_action) #randomness
+			best_value = float('-inf') if is_max_turn else float('inf')
+			action_target = ""
+			for action in possible_action:
+				new_p1_board = copy.deepcopy(p1_board)
+				new_p1_board.set_board_from_hash(action)
+				new_p2_board = copy.deepcopy(p2_board)
+				new_p2_board.set_flip_board_from_hash(action)
+
+				eval_child, action_child = self._minimax(current_depth+1,new_p1_board, new_p2_board, not is_max_turn, alpha, beta)
+
+				if best_value > eval_child:
+					best_value = eval_child
+					action_target = action
+					beta = min(beta, best_value)
+					if beta <= alpha:
+						break
+		return best_value, action_target
 
 	def play_turn(self, action, command):
 		p1_action = self.p1_board.inputAction(action, command)
 		# take action and upate board state
 		self.p2_board.set_flip_board_from_hash(p1_action)
-		self.p1.addState(p1_action)
+		self.p1_board.add_state(p1_action)
 
 		self.p1_board.print_board()
 		print("p1 bench")
 		self.p1_board.print_bench()
 		# check board status if it is end
-		if self.p1.check_game_state() is not None:
+		if self.p1_board.check_game_state() is not None:
 			print("p1 won")
 		else:
 			# Player 2
 			positions = self.p2_board.find_all_next_move()
-			p2_action = self.p2.chooseBestAction(positions, self.p2_board)
+			p2_action = self.chooseAction(self.p1_board, self.p2_board)
 			self.p2_board.set_board_from_hash(p2_action)
 			self.p1_board.set_flip_board_from_hash(p2_action)
-			self.p2.addState(p2_action)
+			self.p2_board.add_state(p2_action)
 			self.p2_board.print_flip_board()
 			print("p2 bench")
 			self.p2_board.print_bench()
 
 
-			if self.p2.check_game_state() is not None:
+			if self.p2_board.check_game_state() is not None:
 				print("p2 won")
 
-class Player():
+	def evaluate(self, board_obj, player_bench, enemy_bench):
+		weight = {
+			"EC": -1,
+			"EG": -5,
+			"EL": -10,
+			"EE": -3,
+			"EH": -7,
+			"MC": 1,
+			"MG": 5,
+			"ML": 10,
+			"ME": 3,
+			"MH": 7,
+			"--": 0
+		}
+		val = 0
+		board = board_obj.get_board()
+		for i in range(len(board)):
+			for j in range(len(board[0])):
+				val += weight[board[i][j]]
+		for item in player_bench:
+			val += weight[item]
+		for item in enemy_bench:
+			val -= weight[item]
+		if board_obj.lion_in_check():
+			val -= 1000000000
+		return val
 
-	def __init__(self, exp_rate=0.3):
+	def chooseAction(self, p1_board, p2_board):
+		self.node_expanded = 0
+
+		start_time = time.time()
+
+		print("MINIMAX AB : Wait AI is choosing")
+		eval_score, selected_action = self._minimax(0,p1_board, p2_board, True,float('-inf'),float('inf'))
+		print("MINIMAX : Done, eval = %d, expanded %d" % (eval_score, self.node_expanded))
+		print("--- %s seconds ---" % (time.time() - start_time))
+
+		return selected_action
+
+class Board():
+
+	def __init__(self):
+		self.board = [["EG","EL","EE"], ["--","EC","--"], ["--","MC","--"], ["ME","ML","MG"]] #refactor initialization value
+		self.valid_moves = {
+			"MC": [(-1,0)],
+			"MG": [(1, 0), (-1, 0), (0, 1), (0, -1)],
+			"ML": [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)],
+			"ME": [(1, 1), (-1, 1), (1, -1), (-1, -1)],
+			"MH": [(1, 0), (-1, 0), (0, 1), (0, -1), (-1, 1), (-1, -1)]
+		}
+		self.all_moves = {
+			"EC": [(1, 0)],
+			"EG": [(1, 0), (-1, 0), (0, 1), (0, -1)],
+			"EL": [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)],
+			"EE": [(1, 1), (-1, 1), (1, -1), (-1, -1)],
+			"EH": [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1)],
+			"MC": [(-1,0)],
+			"MG": [(1, 0), (-1, 0), (0, 1), (0, -1)],
+			"ML": [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)],
+			"ME": [(1, 1), (-1, 1), (1, -1), (-1, -1)],
+			"MH": [(1, 0), (-1, 0), (0, 1), (0, -1), (-1, 1), (-1, -1)]
+		}
+		self.last_six_moves = []
+		self.done = GAME_NOT_DONE
+		self.bench = []
 		self.states = []
-		self.lr = 0.2
-		self.exp_rate = exp_rate
-		self.decay_gamma = 0.9
-		self.states_value = {}  # state -> value
 
-	def chooseAction(self, positions, current_board):
-		if np.random.uniform(0, 1) <= self.exp_rate:
-			# take random action
-			idx = np.random.choice(len(positions))
-			action = positions[idx]
-		else:
-			value_max = -999
-			for p in positions:
-				next_board = current_board
-				next_board = p
-				next_boardHash = self.getHash(next_board)
-				value = 0 if self.states_value.get(next_boardHash) is None else self.states_value.get(next_boardHash)
-				# print("value", value)
-				if value >= value_max:
-					value_max = value
-					action = p
-		# print("{} takes action {}".format(self.name, action))
-		return action
-
-	def chooseBestAction(self, positions, current_board):
-		value_max = -999
-		for p in positions:
-			next_board = current_board
-			next_board = p
-			next_boardHash = self.getHash(next_board)
-			value = 0 if self.states_value.get(next_boardHash) is None else self.states_value.get(next_boardHash)
-			# print("value", value)
-			if value >= value_max:
-				value_max = value
-				action = p
-		return action
+	def inputAction(self, action, command):
+		if action == "move":
+			self.move_piece(int(command[0]), int(command[1]), int(command[2]), int(command[3]))
+		if action == "place":
+			self.place_piece(int(command[0]), int(command[1]), int(command[2]))
+		return self.getHash(self.board)
 
 	def check_game_state(self): # 1 - won 0 - game drawn -1 game lost None - game not done
 		if len(self.states) < 1:
@@ -173,57 +200,11 @@ class Player():
 			return 0
 		return None
 
-	# at the end of game, backpropagate and update states value
-	def feedReward(self, reward):
-		for st in reversed(self.states):
-			if self.states_value.get(st) is None:
-				self.states_value[st] = 0
-			self.states_value[st] += self.lr * (self.decay_gamma * reward - self.states_value[st])
-			reward = self.states_value[st]
-			# print(self.states_value)
-
 	def check_game_finished(self):
 		return {"done": self.check_game_state()}
 
-	def addState(self, board_hash):
+	def add_state(self, board_hash):
 		self.states.append(board_hash)
-
-	def getHash(self, board):
-		combined = ""
-		for i in range(len(board)):
-			for j in range(len(board[0])):
-				combined = combined + str(board[i][j])
-		return combined
-
-	def reset(self):
-		self.states = []
-
-class Board():
-
-	def __init__(self):
-		self.board = [["EG","EL","EE"], ["--","EC","--"], ["--","MC","--"], ["ME","ML","MG"]] #refactor initialization value
-		self.valid_moves = {
-			# "EC": [(1, 0)],
-			# "EG": [(1, 0), (-1, 0), (0, 1), (0, -1)],
-			# "EL": [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)],
-			# "EE": [(1, 1), (-1, 1), (1, -1), (-1, -1)],
-			# "EH": [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1)],
-			"MC": [(-1,0)],
-			"MG": [(1, 0), (-1, 0), (0, 1), (0, -1)],
-			"ML": [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)],
-			"ME": [(1, 1), (-1, 1), (1, -1), (-1, -1)],
-			"MH": [(1, 0), (-1, 0), (0, 1), (0, -1), (-1, 1), (-1, -1)]
-		}
-		self.last_six_moves = []
-		self.done = GAME_NOT_DONE
-		self.bench = []
-
-	def inputAction(self, action, command):
-		if action == "move":
-			self.move_piece(int(command[0]), int(command[1]), int(command[2]), int(command[3]))
-		if action == "place":
-			self.place_piece(int(command[0]), int(command[1]), int(command[2]))
-		return self.getHash(self.board)
 
 	def matrix_to_array(self, matrix): # only for this specific 3x2 matrix
 		array = matrix[0]
@@ -250,6 +231,15 @@ class Board():
 	# 	else:
 	# 		print("removing a piece not in bench??")
 	# 	self.bench = self.array_to_matrix(array)
+
+	def get_board(self):
+		return self.board
+
+	def get_bench(self):
+		return self.bench
+
+	def get_states(self):
+		return self.states
 
 	def print_bench(self):
 		print(self.bench)
@@ -363,7 +353,7 @@ class Board():
 		for i in range(len(self.board)):
 			for j in range(len(self.board[0])):
 				if self.board[i][j] in ["EG", "EH", "EC", "EL", "EE"]:
-					space_in_range = [(x+i, y+j) for (x,y) in self.valid_moves[self.board[i][j]]]
+					space_in_range = [(x+i, y+j) for (x,y) in self.all_moves[self.board[i][j]]]
 					space_in_range = [(x,y) for (x,y) in space_in_range if self.check_in_board(x,y)]
 					unsafe_spaces.extend(space_in_range)
 		unsafe_spaces = list(set(unsafe_spaces))
@@ -403,6 +393,8 @@ class Board():
 				self.board[new_row][new_col] = piece
 		else:
 			print("this is not a valid move")
+			self.print_board()
+			print(str(old_row) + " " + str(old_col) + " " + str(new_row) + " " + str(new_col))
 
 		# for i in range(len(self.board[0])):
 		# 	if self.board[0][i] == "ML" and not self.lion_in_check():
@@ -466,6 +458,10 @@ class Board():
 		# print(new_board_hash)
 		diff = self.find_diff(self.getHash(self.board), new_board_hash)
 
+		# print("diff: " + str(len(diff)))
+		# print(self.getHash(self.board))
+		# print(new_board_hash)
+
 		if(len(diff) == 2): #placing
 			first = diff[0]/2
 			piece = new_board_hash[diff[0]:(diff[1]+1)]
@@ -489,7 +485,7 @@ class Board():
 				self.move_piece(second//3, second%3, first//3, first%3)
 
 		# self.print_board()
-
+		self.add_state(action)
 
 	def set_flip_board_from_hash(self, new_board_hash):
 		# self.set_board_from_hash(new_board_hash)
@@ -503,6 +499,8 @@ class Board():
 		self.board = copy.deepcopy(new_board)
 
 		self.board = self.flip_board()
+
+		self.add_state(self.getHash(self.board))
 
 	def flip_board(self):
 		new_board = [["EG","EL","EE"], ["--","EC","--"], ["--","MC","--"], ["ME","ML","MG"]] #prob should differ intialization of board
@@ -529,9 +527,6 @@ class Board():
 
 if __name__ == "__main__":
 	game = Game()
-	# game.train(rounds=1000000)
-	# game.savePolicy()
-	game.loadPolicy()
 	game.p1_board.print_board()
 	while True:
 		action = raw_input("action:")
